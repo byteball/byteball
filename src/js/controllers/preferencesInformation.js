@@ -83,7 +83,7 @@ angular.module('copayApp.controllers').controller('preferencesInformation',
       
       var ModalInstanceCtrl = function($scope, $modalInstance) {
         $scope.color = fc.backgroundColor;
-        $scope.signed_message = correspondentListService.escapeHtmlAndInsertBr(typeof objSignedMessage.signed_message === 'string' ? objSignedMessage.signed_message : JSON.stringify(objSignedMessage.signed_message, null, '\t'));
+        $scope.signed_message = objSignedMessage.signed_message;
         $scope.address = objSignedMessage.authors[0].address;
         $scope.signature = signedMessageBase64;
         var validation = require('ocore/validation.js');
@@ -125,6 +125,14 @@ angular.module('copayApp.controllers').controller('preferencesInformation',
       });
       
     }; // verifySignedMessage
+
+    $scope.isString = function(variable) {
+      return typeof variable === 'string';
+    };
+  
+    $scope.prettyPrint = function(variable) {
+      return $scope.isString(variable) ? variable : JSON.stringify(variable, null, '\t');
+    };
 
     $scope.hasListOfBalances = function() {
       return !!Object.keys($scope.assocListOfBalances || {}).length;

@@ -260,15 +260,15 @@ angular.module('copayApp.services').factory('correspondentListService', function
 			if (!info)
 				return '<i>[invalid signed message]</i>';
 			var objSignedMessage = info.objSignedMessage;
-			var displayed_signed_message = (typeof objSignedMessage.signed_message === 'string') ? objSignedMessage.signed_message : JSON.stringify(objSignedMessage.signed_message, null, '\t');
+			var displayed_signed_message = (typeof objSignedMessage.signed_message === 'string') ? objSignedMessage.signed_message : JSON.stringify(objSignedMessage.signed_message);
 			var text = 'Message signed by '+objSignedMessage.authors[0].address+': '+escapeHtml(displayed_signed_message);
 			if (info.bValid)
 				text += " (valid)";
 			else if (info.bValid === false)
 				text += " (invalid)";
 			else
-				text += ' (<a ng-click="verifySignedMessage(\''+signedMessageBase64+'\')">verify</a>)';
-			return toDelayedReplacement('<i>['+text+']</i>');
+				text += ' (verify)';
+			return toDelayedReplacement('<a ng-click="verifySignedMessage(\''+signedMessageBase64+'\')"><i>['+text+']</i></a>');
 		}).replace(url_regexp, function(str){
 			param_index++;
 			params[param_index] = str;
@@ -444,7 +444,8 @@ angular.module('copayApp.services').factory('correspondentListService', function
 		catch(e){
 			return str; // it is already escapeHtml'd
 		}
-		return escapeHtml(JSON.stringify(obj, null, '\t'));
+		//return escapeHtml(JSON.stringify(obj, null, '\t'));
+		return escapeHtml(JSON.stringify(obj));
 	}
 	
 	function getPaymentsByAsset(objMultiPaymentRequest){
@@ -508,21 +509,21 @@ angular.module('copayApp.services').factory('correspondentListService', function
 		}).replace(/\[(.+?)\]\(profile-request:([\w,]+?)\)/g, function(str, description, fields_list){
 			return toDelayedReplacement('[Request for profile fields '+fields_list+']');
 		}).replace(/\[(.+?)\]\(sign-message-request:(.+?)\)/g, function(str, description, message_to_sign){
-			return toDelayedReplacement('<i>[Request to sign message: '+message_to_sign+']</i>');
+			return toDelayedReplacement('<i>[Request to sign message: '+tryParseBase64(message_to_sign)+']</i>');
 		}).replace(/\[(.+?)\]\(signed-message:([\w\/+=]+?)\)/g, function(str, description, signedMessageBase64){
 			var info = getSignedMessageInfoFromJsonBase64(signedMessageBase64);
 			if (!info)
 				return '<i>[invalid signed message]</i>';
 			var objSignedMessage = info.objSignedMessage;
-			var displayed_signed_message = (typeof objSignedMessage.signed_message === 'string') ? objSignedMessage.signed_message : JSON.stringify(objSignedMessage.signed_message, null, '\t');
-			var text = 'Message signed by '+objSignedMessage.authors[0].address+': '+escapeHtmlAndInsertBr(displayed_signed_message);
+			var displayed_signed_message = (typeof objSignedMessage.signed_message === 'string') ? objSignedMessage.signed_message : JSON.stringify(objSignedMessage.signed_message);
+			var text = 'Message signed by '+objSignedMessage.authors[0].address+': '+escapeHtml(displayed_signed_message);
 			if (info.bValid)
 				text += " (valid)";
 			else if (info.bValid === false)
 				text += " (invalid)";
 			else
-				text += ' (<a ng-click="verifySignedMessage(\''+signedMessageBase64+'\')">verify</a>)';
-			return toDelayedReplacement('<i>['+text+']</i>');
+				text += ' (verify)';
+			return toDelayedReplacement('<a ng-click="verifySignedMessage(\''+signedMessageBase64+'\')"><i>['+text+']</i></a>');
 		}).replace(url_regexp, function(str){
 			param_index++;
 			params[param_index] = str;

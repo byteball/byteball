@@ -89,6 +89,14 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 	    	removeNewMessagesDelim();
 	});
 
+	$scope.isString = function(variable) {
+		return typeof variable === 'string';
+	};
+
+	$scope.prettyPrint = function(variable) {
+		return $scope.isString(variable) ? variable : JSON.stringify(variable, null, '\t');
+	};
+
 	$scope.send = function() {
 		$scope.error = null;
 		if (!$scope.message)
@@ -1163,7 +1171,7 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 		var ModalInstanceCtrl = function($scope, $modalInstance) {
 			$scope.color = fc.backgroundColor;
 			$scope.bDisabled = true;
-			$scope.message_to_sign = correspondentListService.escapeHtmlAndInsertBr(object_to_sign ? JSON.stringify(object_to_sign, null, '\t') : message_to_sign);
+			$scope.message_to_sign = object_to_sign ? object_to_sign : message_to_sign;
 			readMyPaymentAddress(fc, function(address){
 				$scope.address = address;
 				var arrAddreses = (object_to_sign ? json : message_to_sign).match(/\b[2-7A-Z]{32}\b/g) || [];
@@ -1262,7 +1270,7 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 		
 		var ModalInstanceCtrl = function($scope, $modalInstance) {
 			$scope.color = fc.backgroundColor;
-			$scope.signed_message = correspondentListService.escapeHtmlAndInsertBr(typeof objSignedMessage.signed_message === 'string' ? objSignedMessage.signed_message : JSON.stringify(objSignedMessage.signed_message, null, '\t'));
+			$scope.signed_message = objSignedMessage.signed_message;
 			$scope.address = objSignedMessage.authors[0].address;
 			$scope.signature = signedMessageBase64;
 			var validation = require('ocore/validation.js');
