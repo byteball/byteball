@@ -76,34 +76,20 @@ angular.module('copayApp.controllers')
 		self.android = isMobile.Android() && window.cordova;
 		self.androidVersion = isMobile.Android() ? parseFloat(navigator.userAgent.slice(navigator.userAgent.indexOf("Android")+8)) : null;
 		self.oldAndroidFilePath = null;
-		self.oldAndroidFileName = '';
+		self.previousFileHashName = '';
 
 		self.oldAndroidInputFileClick = function() {
 			if(isMobile.Android() && self.androidVersion < 5) {
 				window.plugins.mfilechooser.open([], function(uri) {
 					self.oldAndroidFilePath = 'file://' + uri;
-					self.oldAndroidFileName = uri.split('/').pop();
+					self.previousFileHashName = uri.split('/').pop();
 					$timeout(function() {
 						$rootScope.$apply();
 					});
-					if (!self.oldAndroidFilePath)
+					if (!self.previousFileHashName)
 						return;
 					self.importing = true;
-					fileSystemService.readFile(self.oldAndroidFilePath, function(err, data) {
-						if (err) {
-							self.setSendError("cannot read the file whose hash is going to be posted");
-							return;
-						}
-						const hash = require("crypto")
-							.createHash("sha256")
-							.update(data)
-							.digest("hex");
-						home.feedvaluespairs.push({
-							name: home.attachedFile.name,
-							value: hash,
-						});
-						$scope.$apply();
-					})
+					this.addHashToFeedValues(self.oldAndroidFilePath);
 				}, function(error) {
 					alert(error);
 				});
@@ -184,6 +170,33 @@ angular.module('copayApp.controllers')
 					self.resetError();
 			}
 		});
+
+		this.addHashToFeedValues = function(filePath) {
+			var read = isCordova
+				? (file, cb) => fileSystemService.readFileFromForm(file, cb)
+				: (file, cb) => fileSystemService.readFile(file.path, cb);
+			read(filePath, function (err, data) {
+				if (err) {
+					self.setSendError("cannot read the file whose hash is going to be posted");
+					return;
+				}
+				const hash = require("crypto")
+					.createHash("sha256")
+					.update(data)
+					.digest("hex");
+				// if the last element is empty, remove it
+				if (home.feedvaluespairs.length > 0) {
+					var last_pair = home.feedvaluespairs[home.feedvaluespairs.length - 1];
+					if (!last_pair.name && !last_pair.value)
+						home.feedvaluespairs.pop();
+				}
+				home.feedvaluespairs.push({
+					name: home.attachedFile.name,
+					value: hash,
+				});
+				$scope.$apply();
+			});
+		};
 
 		this.countChecker = function() {
 			self.newPaymentsCount = $rootScope.newPaymentsCount;
@@ -2029,6 +2042,7 @@ angular.module('copayApp.controllers')
 
 		this.resetDataForm = function() {
 			this.resetError();
+			self.previousFileHashName = '';
 			$scope.home.feedvaluespairs = [{}];
 			$timeout(function() {
 				$rootScope.$digest();
@@ -2194,6 +2208,7 @@ angular.module('copayApp.controllers')
 						var paymentData = Buffer.from(base64data, 'base64').toString('utf8');
 						paymentData = paymentData ? JSON.parse(paymentData) : null;
 						if (paymentData) {
+							self.previousFileHashName = '';
 							$scope.home.feedvaluespairs = [];
 							for (var key in paymentData) {
 								$scope.home.feedvaluespairs.push({name: key, value: paymentData[key], readonly: true});
@@ -2313,6 +2328,7 @@ angular.module('copayApp.controllers')
 						delete dataPrompt.content;
 						break;
 				}
+				self.previousFileHashName = '';
 				$scope.home.feedvaluespairs = [];
 				for (var key in dataPrompt) {
 					var value = dataPrompt[key];
@@ -2479,33 +2495,8 @@ angular.module('copayApp.controllers')
 			home.attachedFile = $ev.target.files[0];
 			if (!home.attachedFile) 
 				return;
-			var read = isCordova
-				? (file, cb) => fileSystemService.readFileFromForm(file, cb)
-				: (file, cb) => fileSystemService.readFile(file.path, cb);
-			read(home.attachedFile, function (
-				err,
-				data
-			) {
-				if (err) {
-					self.setSendError("cannot read the file whose hash is going to be posted");
-					return;
-				}
-				const hash = require("crypto")
-					.createHash("sha256")
-					.update(data)
-					.digest("hex");
-				// if the last element is empty, remove it
-				if (home.feedvaluespairs.length > 0) {
-					var last_pair = home.feedvaluespairs[home.feedvaluespairs.length - 1];
-					if (!last_pair.name && !last_pair.value)
-						home.feedvaluespairs.pop();
-				}
-				home.feedvaluespairs.push({
-					name: home.attachedFile.name,
-					value: hash,
-				});
-				$scope.$apply();
-			});
+			self.previousFileHashName = home.attachedFile.name;
+			this.addHashToFeedValues(home.attachedFile);
 		};
 
 		this.openTxModal = function(btx) {
@@ -2845,6 +2836,7 @@ angular.module('copayApp.controllers')
 
 			this._amount = this._address = null;
 			this.bSendAll = false;
+			self.previousFileHashName = '';
 			$scope.home.feedvaluespairs = [];
 			resetAAFields();
 			var form = $scope.sendPaymentForm;
@@ -2930,6 +2922,7 @@ angular.module('copayApp.controllers')
 								data = {};
 								break;
 						}
+						self.previousFileHashName = '';
 						$scope.home.feedvaluespairs = [];
 						for (var key in data) {
 							var value = data[key];

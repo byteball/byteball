@@ -583,6 +583,12 @@ input.datafeed_input {
                       <i class="fi-plus size-18 m10r"></i>
                       <span class="text-close size-12" translate>Add fields</span>
                     </a>
+                    <div ng-show="home.android && home.androidVersion < 5">
+                      <button ng-click="home.oldAndroidInputFileClick()" class="button small black round" translate>Choose File</button>
+                      {{home.previousFileHashName}}
+                    </div>
+                    <input ng-show="!home.android || home.androidVersion >= 5" class="post-hash-file" id="post-hash-file" type="file" onchange="angular.element(this).scope().home.sendAttachedFile(event)">
+                    <label ng-show="!home.android || home.androidVersion >= 5" for="post-hash-file" ng-class="{'active': home.previousFileHashName}"><i class="fi-upload size-18 m10r"></i>{{home.previousFileHashName ? "Posting hash of file " + home.previousFileHashName : "Post hash of a file"}}</label>
                   </div>
                 </div>
 	            </div>
@@ -746,10 +752,10 @@ input.datafeed_input {
           <div ng-if="assetIndexSelectorValue == -4">
             <div ng-show="home.android && home.androidVersion < 5">
               <button ng-click="home.oldAndroidInputFileClick()" class="button small black round" translate>Choose File</button>
-              {{home.oldAndroidFileName}}
+              {{home.previousFileHashName}}
             </div>
             <input ng-show="!home.android || home.androidVersion >= 5" class="post-hash-file" id="post-hash-file" type="file" onchange="angular.element(this).scope().home.sendAttachedFile(event)">
-            <label ng-show="!home.android || home.androidVersion >= 5" for="post-hash-file" ng-class="{'active': home.attachedFile}"><i class="fi-upload size-18 m10r"></i>{{home.attachedFile ? "Posting hash of file " + home.attachedFile.name : "Post hash of a file"}}</label>
+            <label ng-show="!home.android || home.androidVersion >= 5" for="post-hash-file" ng-class="{'active': home.previousFileHashName}"><i class="fi-upload size-18 m10r"></i>{{home.previousFileHashName ? "Posting hash of file " + home.previousFileHashName : "Post hash of a file"}}</label>
           </div>
 
 				</div>
