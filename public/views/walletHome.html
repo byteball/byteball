@@ -536,7 +536,7 @@ input.datafeed_input {
 	                </label>
 	                <div class="input">
 	                  <textarea id="comment" ng-disabled="home.blockUx" name="comment"
-	                    ng-maxlength="500" ng-model="_comment" ng-focus="home.formFocus('msg')"
+	                    ng-maxlength="500" maxlength="500" ng-model="_comment" ng-focus="home.formFocus('msg')"
 	                    ng-blur="home.formFocus(false)"></textarea>
 	                </div>
 	              </div>
@@ -723,7 +723,7 @@ input.datafeed_input {
           <label style="float: left;">
             <span translate>Text to be forever saved on the DAG:</span>
           </label>
-          <textarea name="content" ng-model="home.content" placeholder="Text" required rows="4" ng-change="home.validateTextLength()" style="margin-bottom: 0px;/*font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;*/" ng-trim="false"></textarea>
+          <textarea name="content" ng-model="home.content" placeholder="Text" required rows="10" ng-change="home.validateTextLength()" style="margin-bottom: 0px;/*font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;*/" ng-trim="false"></textarea>
           <div ng-if="sendDataForm.content.$invalid && home.content" class="text-warning size-12" translate>Too long text</div>
           <div ng-if="sendDataForm.content.$valid || !home.content" class="size-12">{{home.content.length || 0}} <span translate>character(s)</span></div>
         </div>
