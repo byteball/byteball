@@ -36,6 +36,11 @@ Constants.UNITS = {
     maxDecimals: 0,
     minDecimals: 0,
   },
+  obyte: {
+    value: 100000000,
+    maxDecimals: 0,
+    minDecimals: 0,
+  },
   giga: {
     value: 1000000000,
     maxDecimals: 0,

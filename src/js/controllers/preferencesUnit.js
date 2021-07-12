@@ -57,8 +57,15 @@ angular.module('copayApp.controllers').controller('preferencesUnitController',
         code: 'mega',
       }
       , {
+        name: 'Obyte (100,000,000 bytes)',
+        shortName: 'OBYTE',
+        value: 100000000,
+        decimals: 8,
+        code: 'obyte',
+      }
+      , {
         name: 'GBytes (1,000,000,000 bytes)',
-        shortName: 'GB',
+        shortName: 'GBYTE',
         value: 1000000000,
         decimals: 9,
         code: 'giga',
