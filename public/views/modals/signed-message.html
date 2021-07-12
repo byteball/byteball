@@ -15,7 +15,13 @@
 <div class="modal-content fix-modals-touch">
 	
 	<h4 class="title m0 row columns" translate>Message:</h4>
-	<div class="m10b m10t row columns size-14 enable_text_select" style="overflow-wrap: break-word;" dynamic="signed_message">
+  <div class="m10b m10t row columns size-14 enable_text_select" style="overflow-wrap: break-word;">
+    <span ng-if="isString(signed_message)" style="white-space: pre-wrap;">{{signed_message}}</span>
+    <ul ng-if="!isString(signed_message)">
+      <li ng-repeat="(key, value) in signed_message">
+        <b>{{key}}:</b> <i style="white-space: pre-wrap;">{{prettyPrint(value)}}</i><br>
+      </li>
+    </ul>
 	</div>
 	
 	<h4 class="title m0 row columns" translate>Signing address:</h4>

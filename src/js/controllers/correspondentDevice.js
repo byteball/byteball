@@ -89,6 +89,14 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 	    	removeNewMessagesDelim();
 	});
 
+	$scope.isString = function(variable) {
+		return typeof variable === 'string';
+	};
+
+	$scope.prettyPrint = function(variable) {
+		return $scope.isString(variable) ? variable : JSON.stringify(variable, null, '\t');
+	};
+
 	$scope.send = function() {
 		$scope.error = null;
 		if (!$scope.message)
@@ -138,6 +146,24 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 	//	issueNextAddressIfNecessary(showRequestPaymentModal);
 	};
 	
+	$scope.requestToSignMessage = function(message_to_sign){
+		if (!message_to_sign || !String(message_to_sign).trim())
+			return $rootScope.$emit('Local/ShowErrorAlert', "Enter a text message first");
+		try{
+			var object_to_sign = JSON.parse(message_to_sign);
+			if (typeof object_to_sign !== 'object') throw Error("value is number or boolean");
+			message_to_sign = Buffer.from(JSON.stringify(object_to_sign), 'utf8').toString('base64');
+			console.log("signing object", object_to_sign);
+		}
+		catch(e){
+			console.log("signing a string");
+		}
+		// remove new-lines, remove space-padding and trim
+		message_to_sign = String(message_to_sign).replace(/\n/g, ' ').replace(/\s{2,}/g, ' ').trim();
+		chatScope.message = '[message](sign-message-request:'+ message_to_sign +')';
+		chatScope.send();
+	};
+
 	$scope.sendPayment = function(address, amount, asset, device_address, base64data, from_address, single_address){
 		console.log("will send payment to "+address);
 		if (asset && $scope.index.arrBalances.filter(function(balance){ return (balance.asset === asset); }).length === 0){
@@ -1163,7 +1189,7 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 		var ModalInstanceCtrl = function($scope, $modalInstance) {
 			$scope.color = fc.backgroundColor;
 			$scope.bDisabled = true;
-			$scope.message_to_sign = correspondentListService.escapeHtmlAndInsertBr(object_to_sign ? JSON.stringify(object_to_sign, null, '\t') : message_to_sign);
+			$scope.message_to_sign = object_to_sign ? object_to_sign : message_to_sign;
 			readMyPaymentAddress(fc, function(address){
 				$scope.address = address;
 				var arrAddreses = (object_to_sign ? json : message_to_sign).match(/\b[2-7A-Z]{32}\b/g) || [];
@@ -1262,7 +1288,7 @@ angular.module('copayApp.controllers').controller('correspondentDeviceController
 		
 		var ModalInstanceCtrl = function($scope, $modalInstance) {
 			$scope.color = fc.backgroundColor;
-			$scope.signed_message = correspondentListService.escapeHtmlAndInsertBr(typeof objSignedMessage.signed_message === 'string' ? objSignedMessage.signed_message : JSON.stringify(objSignedMessage.signed_message, null, '\t'));
+			$scope.signed_message = objSignedMessage.signed_message;
 			$scope.address = objSignedMessage.authors[0].address;
 			$scope.signature = signedMessageBase64;
 			var validation = require('ocore/validation.js');
