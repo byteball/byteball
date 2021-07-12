@@ -874,8 +874,22 @@ angular.module('copayApp.controllers')
 				if (network.exchangeRates[pair]) {
 					usd_amount_str = " (≈" + ((amount/1e9)*network.exchangeRates[pair]).toLocaleString([], {maximumFractionDigits: 2}) + " USD)";
 				}
-				amount = (amount/1e9).toLocaleString([], {maximumFractionDigits: 9});
-				asset = asset == constants.BLACKBYTES_ASSET ? "GBB" : "GB";
+				if (amount >= Math.pow(10, 9)) {
+					amount = (amount/1e9).toLocaleString([], {maximumFractionDigits: 9});
+					asset = asset == constants.BLACKBYTES_ASSET ? "GBB" : "GB";
+				}
+				else if (amount >= Math.pow(10, 6)) {
+					amount = (amount/1e6).toLocaleString([], {maximumFractionDigits: 6});
+					asset = asset == constants.BLACKBYTES_ASSET ? "MBB" : "MB";
+				}
+				else if (amount >= Math.pow(10, 3)) {
+					amount = (amount/1e3).toLocaleString([], {maximumFractionDigits: 3});
+					asset = asset == constants.BLACKBYTES_ASSET ? "KBB" : "KB";
+				}
+				else {
+					amount = amount.toLocaleString([], {maximumFractionDigits: 0});
+					asset = asset == constants.BLACKBYTES_ASSET ? "Blackbytes" : "Bytes";
+				}
 			} else {
 				//indexScope.arrBalances[$scope.index.assetIndex]
 				var assetInfo = lodash.find(indexScope.arrBalances, function(balance){return balance.asset == asset});
